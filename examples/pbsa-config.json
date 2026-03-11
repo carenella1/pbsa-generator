@@ -1,12 +1,7 @@
 {
-  "entity_id": "pbsa_generator",
-  "site_name": "PBSA Generator",
-  "tagline": "Autonomous Personal Brand Infrastructure",
-  "description": "PBSA Generator creates scalable search architectures.",
-  "projects": [
-    {
-      "name": "PBSA Generator Repo",
-      "url": "https://github.com/example/pbsa-generator"
-    }
-  ]
+  "entity_id": "test",
+  "site_name": "test",
+  "tagline": "gamer test",
+  "description": "this is for gamers",
+  "projects": []
 }
