@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<title>PBSA Generator</title>
+
+<link rel="stylesheet" href="/ui/style.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>PBSA Generator</h1>
+<p class="subtitle">Create a Personal Brand Search Architecture site automatically</p>
+
+<div class="card">
+
+<label>Entity Name</label>
+<input id="entity_name" placeholder="Example: Aurora Studios">
+
+<label>Entity ID (repo name)</label>
+<input id="entity_id" placeholder="example: aurora_studios">
+
+<label>Describe what you do</label>
+<textarea id="description" placeholder="Example: I'm a digital artist selling prints and tutorials online"></textarea>
+
+<div class="buttons">
+
+<button onclick="createConfig()">Create Config</button>
+<button onclick="generateSite()">Generate Site</button>
+<button onclick="deploySite()">Generate & Deploy</button>
+
+</div>
+
+</div>
+
+<div id="status"></div>
+
+</div>
+
+<script src="/ui/app.js"></script>
+
+</body>
+</html>

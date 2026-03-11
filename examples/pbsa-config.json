@@ -1,7 +1,15 @@
 {
-  "entity_id": "test",
-  "site_name": "test",
-  "tagline": "gamer test",
-  "description": "this is for gamers",
-  "projects": []
+    "version": "1.0",
+    "entity_id": "chase_studios",
+    "entity_name": "chase studios",
+    "description": "I create comedic remixes of hit songs",
+    "entity_type": "creator",
+    "site": {
+        "domain": "",
+        "tagline": ""
+    },
+    "relationships": [],
+    "metadata": {
+        "created_by": "pbsa_generator"
+    }
 }

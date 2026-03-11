@@ -1,0 +1,115 @@
+body
+{
+    margin:0;
+    font-family:Segoe UI, sans-serif;
+    background:#0a0a14;
+    color:white;
+}
+
+/* container */
+
+.container
+{
+    max-width:700px;
+    margin:auto;
+    padding-top:60px;
+}
+
+/* title */
+
+h1
+{
+    text-align:center;
+    font-size:42px;
+
+    background:linear-gradient(90deg,#ff00ff,#00ffff);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+.subtitle
+{
+    text-align:center;
+    color:#aaa;
+    margin-bottom:40px;
+}
+
+/* card */
+
+.card
+{
+    background:#121225;
+    padding:30px;
+    border-radius:10px;
+
+    box-shadow:
+    0 0 15px rgba(255,0,255,0.2),
+    0 0 30px rgba(0,255,255,0.1);
+}
+
+/* inputs */
+
+label
+{
+    display:block;
+    margin-top:20px;
+    margin-bottom:6px;
+    color:#bbb;
+}
+
+input, textarea
+{
+    width:100%;
+    padding:10px;
+
+    background:#0f0f1e;
+    border:1px solid #333;
+    border-radius:6px;
+
+    color:white;
+}
+
+textarea
+{
+    height:100px;
+}
+
+/* buttons */
+
+.buttons
+{
+    margin-top:30px;
+}
+
+button
+{
+    margin-right:10px;
+    margin-top:10px;
+
+    padding:10px 20px;
+
+    background:linear-gradient(90deg,#ff00ff,#00ffff);
+    border:none;
+
+    border-radius:6px;
+
+    color:black;
+    font-weight:bold;
+    cursor:pointer;
+
+    transition:0.2s;
+}
+
+button:hover
+{
+    transform:scale(1.05);
+}
+
+/* status */
+
+#status
+{
+    margin-top:30px;
+    text-align:center;
+    color:#00ffff;
+}

@@ -1,3 +1,10 @@
 {
-  "entities": []
+  "entities": [
+    {
+      "entity_id": "chase_studios",
+      "entity_type": "creator",
+      "created": "2026-03-11T20:50:34.446562"
+    }
+  ],
+  "relationships": []
 }
