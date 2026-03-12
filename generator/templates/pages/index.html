@@ -2,20 +2,18 @@
 
 {% block content %}
 
-<h1>{{ entity.site_name }}</h1>
+<section class="hero">
+    <h1>{{ entity.site_name }}</h1>
+    <p>{{ entity.description }}</p>
+</section>
 
-<p>{{ entity.tagline }}</p>
-
-<p>{{ entity.description }}</p>
-
-<h2>Projects</h2>
-
-<ul>
-{% for project in entity.projects %}
-<li>
-<a href="{{ project.url }}">{{ project.name }}</a>
-</li>
-{% endfor %}
-</ul>
+<section class="pillars">
+    <h2>Explore</h2>
+    <ul>
+        {% for p in pillars %}
+        <li><a href="{{ p.name }}.html">{{ p.title }}</a></li>
+        {% endfor %}
+    </ul>
+</section>
 
 {% endblock %}

@@ -1,0 +1,24 @@
+{
+  "pages": [
+    {
+      "name": "about",
+      "title": "About"
+    },
+    {
+      "name": "portfolio",
+      "title": "Portfolio"
+    },
+    {
+      "name": "collections",
+      "title": "Collections"
+    },
+    {
+      "name": "press",
+      "title": "Press"
+    },
+    {
+      "name": "contact",
+      "title": "Contact"
+    }
+  ]
+}

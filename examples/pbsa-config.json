@@ -1,8 +1,8 @@
 {
     "version": "1.0",
-    "entity_id": "chase_studios",
-    "entity_name": "chase studios",
-    "description": "I create comedic remixes of hit songs",
+    "entity_id": "musical_minds",
+    "entity_name": "musical minds",
+    "description": "musicians who create paid content online",
     "entity_type": "creator",
     "site": {
         "domain": "",

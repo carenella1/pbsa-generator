@@ -1,0 +1,24 @@
+{
+  "pages": [
+    {
+      "name": "about",
+      "title": "About"
+    },
+    {
+      "name": "projects",
+      "title": "Projects"
+    },
+    {
+      "name": "articles",
+      "title": "Articles"
+    },
+    {
+      "name": "media",
+      "title": "Media"
+    },
+    {
+      "name": "contact",
+      "title": "Contact"
+    }
+  ]
+}

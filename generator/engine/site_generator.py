@@ -1,166 +1,116 @@
 import json
-import shutil
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
-
-from generator.architecture_loader import load_architecture
-from generator.registry.registry_manager import EntityRegistry
 
 
 class PBSASiteGenerator:
 
-    def __init__(self, config_path):
+    def __init__(self, config):
 
-        self.config_path = Path(config_path)
-
-        with open(self.config_path) as f:
-            self.config = json.load(f)
-
-        self.templates_dir = Path("generator/templates")
+        # Accept either a config dictionary or a path to a config file
+        if isinstance(config, dict):
+            self.config = config
+        else:
+            with open(config, "r", encoding="utf-8") as f:
+                self.config = json.load(f)
 
         self.env = Environment(
-            loader=FileSystemLoader(self.templates_dir)
+            loader=FileSystemLoader("generator/templates")
         )
+
+    # -----------------------------
+    # MAIN BUILD
+    # -----------------------------
 
     def build(self):
 
-        entity_id = self.config["entity_id"]
-
-        # Register entity in ecosystem registry
-        registry = EntityRegistry()
-        registry.register_entity(
-            entity_id=entity_id,
-            entity_type=self.config.get("entity_type", "unknown")
-        )
+        entity_id = self.config.get("entity_id", "pbsa_site")
 
         output_dir = Path("output/builds") / entity_id
+        output_dir.mkdir(parents=True, exist_ok=True)
 
-        if output_dir.exists():
-            shutil.rmtree(output_dir)
+        print(f"Building PBSA site for: {entity_id}")
 
-        output_dir.mkdir(parents=True)
+        self.build_homepage(output_dir)
+        self.build_architecture_pages(output_dir)
 
-        print(f"Building PBSA site for {entity_id}")
+        print("PBSA build complete.")
 
-        entity_type = self.config.get("entity_type", "personal_brand")
+    # -----------------------------
+    # HOMEPAGE
+    # -----------------------------
 
-        architecture = load_architecture(entity_type)
-
-        pillars = architecture["pillars"]
-
-        # Navigation structure
-        navigation = [{"name": "Home", "url": "/"}]
-
-        for pillar in pillars:
-            navigation.append({
-                "name": pillar.title(),
-                "url": f"/{pillar}/"
-            })
-
-        # Copy static assets
-        self.copy_assets(output_dir)
-
-        # Build homepage
-        self.build_homepage(output_dir, navigation)
-
-        # Build pillar pages
-        self.build_pillars(output_dir, pillars, navigation)
-
-        # Generate sitemap
-        self.build_sitemap(output_dir, pillars)
-
-        # Generate robots.txt
-        self.build_robots(output_dir)
-
-        print(f"Site generated at {output_dir}")
-
-    def build_homepage(self, site_dir, navigation):
+    def build_homepage(self, output_dir):
 
         template = self.env.get_template("pages/index.html")
 
         entity = {
-            "site_name": self.config["entity_id"].replace("_", " ").title()
+            "site_name": self.config.get("entity_name", self.config.get("entity_id", "PBSA Site")),
+            "description": self.config.get("description", ""),
+            "entity_type": self.config.get("entity_type", "personal_brand"),
         }
 
         rendered = template.render(
             entity=entity,
-            config=self.config,
-            navigation=navigation
+            pillars=self.get_pillars()
         )
 
-        with open(site_dir / "index.html", "w", encoding="utf-8") as f:
+        with open(output_dir / "index.html", "w", encoding="utf-8") as f:
             f.write(rendered)
 
-        print("Homepage generated")
+    # -----------------------------
+    # ARCHITECTURE PAGES
+    # -----------------------------
 
-    def build_pillars(self, site_dir, pillars, navigation):
+    def build_architecture_pages(self, output_dir):
 
-        for pillar in pillars:
+        architecture = self.load_architecture()
 
-            pillar_dir = site_dir / pillar
-            pillar_dir.mkdir(exist_ok=True)
+        entity = {
+            "site_name": self.config.get("entity_name", self.config.get("entity_id", "PBSA Site")),
+            "description": self.config.get("description", ""),
+            "entity_type": self.config.get("entity_type", "personal_brand"),
+        }
 
-            template = self.env.get_template("pages/pillar.html")
+        for page in architecture["pages"]:
 
-            entity = {
-                "site_name": self.config["entity_id"].replace("_", " ").title()
-            }
+            template = self.env.get_template("pages/generic_page.html")
 
             rendered = template.render(
-                pillar=pillar,
                 entity=entity,
-                config=self.config,
-                navigation=navigation
+                page=page,
+                pillars=self.get_pillars()
             )
 
-            with open(pillar_dir / "index.html", "w", encoding="utf-8") as f:
+            filename = f"{page['name']}.html"
+
+            with open(output_dir / filename, "w", encoding="utf-8") as f:
                 f.write(rendered)
 
-            print(f"Pillar generated: {pillar}")
+    # -----------------------------
+    # LOAD ARCHITECTURE TEMPLATE
+    # -----------------------------
 
-    def copy_assets(self, site_dir):
+    def load_architecture(self):
 
-        static_dir = Path("generator/static")
+        entity_type = self.config.get("entity_type", "personal_brand")
 
-        if not static_dir.exists():
-            return
+        architecture_path = Path("generator/architectures") / f"{entity_type}.json"
 
-        dest = site_dir / "assets"
+        if not architecture_path.exists():
+            print(f"Architecture '{entity_type}' not found. Using fallback.")
+            architecture_path = Path("generator/architectures/personal_brand.json")
 
-        shutil.copytree(static_dir, dest)
+        with open(architecture_path, "r", encoding="utf-8") as f:
+            architecture = json.load(f)
 
-        print("Assets copied")
+        return architecture
 
-    def build_sitemap(self, site_dir, pillars):
+    # -----------------------------
+    # PILLARS
+    # -----------------------------
 
-        urls = []
+    def get_pillars(self):
 
-        urls.append("<url><loc>/</loc></url>")
-
-        for pillar in pillars:
-            urls.append(f"<url><loc>/{pillar}/</loc></url>")
-
-        content = f"""<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-{''.join(urls)}
-</urlset>
-"""
-
-        with open(site_dir / "sitemap.xml", "w") as f:
-            f.write(content)
-
-        print("Sitemap generated")
-
-    def build_robots(self, site_dir):
-
-        robots = """
-User-agent: *
-Allow: /
-
-Sitemap: /sitemap.xml
-"""
-
-        with open(site_dir / "robots.txt", "w") as f:
-            f.write(robots)
-
-        print("robots.txt generated")
+        architecture = self.load_architecture()
+        return architecture["pages"]

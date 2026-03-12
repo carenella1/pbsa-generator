@@ -1,37 +1,22 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-
-<meta charset="UTF-8">
-
-<title>{{ entity.site_name }}</title>
-
-<style>
-
-body{
-font-family: Arial;
-background:#0b0f1a;
-color:white;
-margin:40px;
-}
-
-h1{
-color:#00e5ff;
-}
-
-a{
-color:#ff2bd6;
-}
-
-</style>
-
+    <meta charset="UTF-8">
+    <title>{{ entity.site_name }}</title>
 </head>
-
 <body>
 
+<header>
+    <h2>{{ entity.site_name }}</h2>
+</header>
+
+<main>
 {% block content %}{% endblock %}
+</main>
+
+<footer>
+    <p>PBSA Generated Site</p>
+</footer>
 
 </body>
-
 </html>
