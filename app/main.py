@@ -1,91 +1,106 @@
-import json
-import os
 from fastapi import FastAPI
-from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from fastapi.responses import RedirectResponse, JSONResponse
+from pathlib import Path
+import json
 
-from generator.engine.site_generator import PBSASiteGenerator
-from app.services.entity_classifier import EntityClassifier
+# --------------------------------
+# App Initialization
+# --------------------------------
 
-app = FastAPI()
+app = FastAPI(title="PBSA Generator")
 
-app.mount("/ui", StaticFiles(directory="app/ui"), name="ui")
+print("MAIN.PY LOADED")
 
+# --------------------------------
+# Paths
+# --------------------------------
 
-class EntityInput(BaseModel):
-    name: str
-    description: str
+BASE_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = BASE_DIR.parent
 
+UI_DIR = BASE_DIR / "ui"
+ARCH_DIR = PROJECT_ROOT / "generator" / "architectures"
+OUTPUT_DIR = PROJECT_ROOT / "output"
 
-class ConfigInput(BaseModel):
-    entity_name: str
-    entity_description: str
+print("UI_DIR:", UI_DIR)
+print("UI exists:", UI_DIR.exists())
 
+# --------------------------------
+# Static UI Mount
+# --------------------------------
 
-# -----------------------------
-# CREATE CONFIG
-# -----------------------------
+app.mount(
+    "/ui",
+    StaticFiles(directory=str(UI_DIR)),
+    name="ui"
+)
 
-@app.post("/create-config")
-def create_config(data: ConfigInput):
+# --------------------------------
+# Root Redirect
+# --------------------------------
 
-    print("Creating PBSA config...")
+@app.get("/")
+def root():
+    return RedirectResponse("/ui/index.html")
 
-    classifier = EntityClassifier()
+# --------------------------------
+# Health Check
+# --------------------------------
 
-    entity_type = classifier.classify(
-        data.entity_name,
-        data.entity_description
-    )
+@app.get("/health")
+def health():
+    return {"status": "running"}
 
-    config = {
-        "entity_id": data.entity_name.lower().replace(" ", "_"),
-        "entity_name": data.entity_name,
-        "description": data.entity_description,
-        "entity_type": entity_type
-    }
-
-    os.makedirs("examples", exist_ok=True)
-
-    config_path = f"examples/{config['entity_id']}_config.json"
-
-    with open(config_path, "w") as f:
-        json.dump(config, f, indent=2)
-
-    print("Config created:", config_path)
-
-    return JSONResponse({
-        "status": "success",
-        "config_path": config_path,
-        "config": config
-    })
-
-
-# -----------------------------
-# GENERATE SITE
-# -----------------------------
+# --------------------------------
+# PBSA Site Generation
+# --------------------------------
 
 @app.post("/generate")
-def generate_site(payload: dict):
+def generate_site(config: dict):
 
-    print("Generating PBSA site...")
+    try:
 
-    config = payload.get("config")
+        entity_type = config.get("entity_type", "personal_brand")
 
-    if not config:
+        architecture_path = ARCH_DIR / f"{entity_type}.json"
+
+        if not architecture_path.exists():
+            architecture_path = ARCH_DIR / "personal_brand.json"
+
+        with open(architecture_path) as f:
+            architecture = json.load(f)
+
+        site_name = config.get("site_name", "pbsa-site")
+
+        build_dir = OUTPUT_DIR / f"builds/{site_name}"
+        build_dir.mkdir(parents=True, exist_ok=True)
+
+        index_html = f"""
+        <html>
+        <head>
+            <title>{site_name}</title>
+        </head>
+        <body>
+            <h1>{site_name}</h1>
+            <p>PBSA site generated successfully.</p>
+        </body>
+        </html>
+        """
+
+        with open(build_dir / "index.html", "w") as f:
+            f.write(index_html)
+
+        return {
+            "status": "success",
+            "build_location": str(build_dir)
+        }
+
+    except Exception as e:
+
+        print("GENERATION ERROR:", e)
+
         return JSONResponse(
-            {"status": "error", "message": "No config provided"},
-            status_code=400
+            status_code=500,
+            content={"error": str(e)}
         )
-
-    generator = PBSASiteGenerator(config)
-
-    generator.build()
-
-    print("Site generation finished.")
-
-    return JSONResponse({
-        "status": "success",
-        "message": "Site generated successfully."
-    })
